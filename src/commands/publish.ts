@@ -13,6 +13,7 @@ import { DraftService } from '../core/draft/draft.service';
 import { LinkedInService } from '../linkedin/linkedin.service';
 import { config, missingPublishCredentials } from '../config/env';
 import { logger } from '../logging/logger';
+import { validateForPublishing } from '../validators/publishing.validator';
 import { parseArgs, getString, run, line } from './util/cli';
 
 run(async () => {
@@ -29,6 +30,23 @@ run(async () => {
 
   // SAFETY CORE: refuse to publish anything that is not approved.
   drafts.assertPublishable(draft);
+
+  // GUARDRAILS: brand + quality + status checks. Errors block; warnings inform.
+  const validation = validateForPublishing(draft);
+  if (validation.issues.length > 0) {
+    console.log('Guardrail checks:');
+    for (const issue of validation.issues) {
+      const mark = issue.severity === 'error' ? '  ✖' : '  ⚠';
+      console.log(`${mark} [${issue.code}] ${issue.message}`);
+    }
+    console.log('');
+  }
+  if (!validation.passed) {
+    logger.warn('publishing', `Publish blocked by guardrails: ${draft.id}`, {
+      issues: validation.issues,
+    });
+    throw new Error('Draft failed publishing guardrails (see errors above).');
+  }
 
   const willReallyPost = !config.linkedIn.dryRun && !!config.linkedIn.accessToken;
   if (willReallyPost) {

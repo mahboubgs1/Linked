@@ -9,6 +9,9 @@
  */
 
 import { DraftService } from '../core/draft/draft.service';
+import { validateBrand } from '../validators/brand.validator';
+import { validateQuality } from '../validators/quality.validator';
+import { combine } from '../validators/validation.types';
 import { parseArgs, getString, getFlag, run, line } from './util/cli';
 import { renderDraftPreview } from './util/render';
 
@@ -28,6 +31,17 @@ run(() => {
     console.log(`🚫 Draft ${draft.id} rejected. Reason: ${reason}`);
     console.log(line('═'));
     return;
+  }
+
+  // Show brand/quality feedback before approving (non-blocking at this stage).
+  const preCheck = combine([validateBrand(service.get(id)), validateQuality(service.get(id))]);
+  if (preCheck.issues.length > 0) {
+    console.log('Pre-approval checks:');
+    for (const issue of preCheck.issues) {
+      const mark = issue.severity === 'error' ? '  ✖' : '  ⚠';
+      console.log(`${mark} [${issue.code}] ${issue.message}`);
+    }
+    console.log('');
   }
 
   const draft = service.approve(id);

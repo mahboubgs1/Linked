@@ -161,13 +161,33 @@ src/
 │   ├── topic/      topic repository + service (dedup, series tracking)
 │   ├── draft/      draft repository + service (lifecycle state machine)
 │   └── calendar/   calendar model (config-driven) + scheduler (arch only)
+├── brand/          brand profile, voice rules, audience, forbidden patterns
+├── knowledge/      real-experience corpus + retrieval service (grounding)
+├── strategy/       content pillars, audience mapper, pillar-balanced selection
+├── validators/     brand + quality + publishing guardrails
 ├── generator/      IContentGenerator + template generator + writing style
-│                   (IAIProvider stub for future AI backend)
+│                   (grounds content in knowledge; IAIProvider stub for AI)
 ├── infographic/    prompt builder + brand style + IImageProvider stub
 ├── linkedin/       ILinkedInProvider + service + OAuth placeholder
 ├── commands/       seed · generate · drafts · preview · approve · publish
 └── data/           seed topics
 ```
+
+### Brand engine, knowledge base, strategy & guardrails
+
+- **Brand engine** (`src/brand/`) — the executive brand profile, checkable voice
+  rules, audience segments, and a list of "generic AI" phrases to avoid.
+- **Knowledge base** (`src/knowledge/`) — a real-experience corpus (experience,
+  projects, achievements, lessons) with a retrieval service. The generator weaves
+  a relevant, grounded line into training and case-study posts so they read as
+  genuine rather than generic.
+- **Strategy engine** (`src/strategy/`) — content pillars, an audience mapper, and
+  a pillar-balanced topic selector (`selectNextTopic`) that avoids posting the
+  same theme repeatedly.
+- **Guardrails** (`src/validators/`) — brand + quality checks. Warnings are shown
+  at approve time; **errors block publishing** (e.g. a discouraged phrase, or a
+  body that is too short/long). The status rule (`must be approved`) is enforced
+  here too, so it can never be bypassed.
 
 Design principles: simple, minimal dependencies (`dotenv` at runtime), strong
 typing (strict TypeScript), clear error handling, modular provider interfaces.
@@ -176,20 +196,17 @@ typing (strict TypeScript), clear error handling, modular provider interfaces.
 
 ## Future roadmap
 
-This is **V1 (core workflow)**. Planned next passes:
+Delivered so far: **core workflow** + **brand engine, knowledge base, strategy
+engine and guardrails**. Planned next:
 
-- **Brand engine** — `src/brand/` brand profile, voice rules, audience,
-  forbidden "generic AI" patterns.
-- **Knowledge base** — `src/knowledge/` real experience corpus to ground content.
-- **Content strategy engine** — `src/strategy/` content pillars, audience mapper,
-  smart topic selection.
-- **Prompt management layer** — `src/prompts/` externalised, versioned prompts.
-- **Guardrails / validators** — `src/validators/` brand + quality + publishing
-  checks before approval.
+- **Prompt management layer** — `src/prompts/` externalised, versioned prompts
+  (executive / Arabic / case-study / LinkedIn) so nothing is hardcoded in the
+  generator.
 - **Performance analytics** — `src/analytics/` track views/likes/comments/shares
   and learn best topics, hooks and posting times.
 - **Extended lifecycle** — `idea → draft → review → approved → scheduled →
-  published → analyzed`.
+  published → analyzed`, plus richer post types (executive_opinion,
+  technical_insight, leadership_story, industry_comment).
 - **Provider integrations** — real OAuth, AI generation (OpenAI / Claude), image
   generation (OpenAI Images / Canva), LinkedIn analytics.
 - **Scheduler** — opt-in scheduled publishing (still gated by approval).

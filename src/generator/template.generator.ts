@@ -20,8 +20,27 @@ import {
 import { IContentGenerator } from './content-generator.interface';
 import { DefaultInfographicPromptBuilder } from '../infographic/prompt.builder';
 import { hashtagsForTopic } from './styles/writing-style';
+import { KnowledgeService, KnowledgeContext } from '../knowledge/knowledge.service';
 
 const promptBuilder = new DefaultInfographicPromptBuilder();
+const knowledge = new KnowledgeService();
+
+/**
+ * A short grounding line drawn from the real-experience corpus, so posts don't
+ * read as generic. Returns '' when nothing relevant is found.
+ */
+function groundingLine(ctx: KnowledgeContext, type: PostType): string {
+  if (type === 'training' && ctx.lesson) {
+    return `\n\nمن واقع الخبرة العملية: ${ctx.lesson.lesson}`;
+  }
+  if (type === 'case_study' && ctx.achievement) {
+    return `\n\nملاحظة من تجربة سابقة: ${ctx.achievement.statement}`;
+  }
+  if (type === 'teaser' && ctx.experience) {
+    return '';
+  }
+  return '';
+}
 
 /** CTA lines by post type (Arabic). */
 const CTA: Record<PostType, string> = {
@@ -132,15 +151,20 @@ export class TemplateContentGenerator implements IContentGenerator {
   readonly name = 'template';
 
   generateSeries(topic: Topic, slots: ContentSlot[]): GeneratedSeries {
+    const ctx = knowledge.forTopic(topic.slug || topic.title);
     const posts: GeneratedPost[] = slots.map((slot) =>
-      this.buildPost(topic.title, slot),
+      this.buildPost(topic.title, slot, ctx),
     );
     return { topicId: topic.id, topic: topic.title, posts };
   }
 
-  private buildPost(topic: string, slot: ContentSlot): GeneratedPost {
+  private buildPost(
+    topic: string,
+    slot: ContentSlot,
+    ctx: KnowledgeContext,
+  ): GeneratedPost {
     const type = slot.type;
-    const body = `${BODY_BUILDERS[type](topic)}\n\n${CTA[type]}`;
+    const body = `${BODY_BUILDERS[type](topic)}${groundingLine(ctx, type)}\n\n${CTA[type]}`;
     const brief = briefFor(type, topic);
     const infographicPrompt = promptBuilder.build(topic, brief);
     const typeLabel: Record<PostType, string> = {
