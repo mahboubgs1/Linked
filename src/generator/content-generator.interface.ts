@@ -10,5 +10,9 @@ import { ContentSlot, GeneratedSeries, Topic } from '../types';
 
 export interface IContentGenerator {
   readonly name: string;
-  generateSeries(topic: Topic, slots: ContentSlot[]): GeneratedSeries;
+  /** May be sync (template) or async (AI) — callers await the result. */
+  generateSeries(
+    topic: Topic,
+    slots: ContentSlot[],
+  ): GeneratedSeries | Promise<GeneratedSeries>;
 }

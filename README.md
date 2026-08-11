@@ -86,6 +86,8 @@ npm run seed                                  # load the initial topic set (idem
 npm run login                                 # link your LinkedIn account (OAuth)
 npm run token:status                          # show link state, URN, expiry, live/dry-run
 npm run generate                              # generate a series for the next unused topic
+npm run generate -- --generator ai            # force the Claude (AI) generator
+npm run generate -- --generator template      # force the deterministic template generator
 npm run generate -- --topic "Change Management"   # generate for a specific topic
 npm run drafts                                # list all drafts
 npm run drafts -- --status approved           # filter by status
@@ -116,11 +118,38 @@ npm run publish -- --id draft_abc123  # publish (dry-run unless configured)
   multi-week / 30-post series.
 - **Drafts** live in `data/drafts.json` with `title, topic, type, body,
   hashtags, infographic_prompt, created_at, status`.
+- **Generation** uses the **Claude (AI) generator** when `ANTHROPIC_API_KEY` is
+  set — fully topic-tailored, Arabic-first posts grounded in the brand engine,
+  knowledge base, and strategy engine (see below). Without a key it falls back
+  to the deterministic **template generator** automatically. Force either with
+  `--generator ai|template`.
 - **Infographic prompts** are generated for every post from a structured brief +
   brand style (navy / white / gold, Arabic RTL typography, LinkedIn vertical
   layout, modern IT icons). No image is generated yet — see the roadmap.
 - **Logs** are written to `logs/app.log` (JSON lines): generation, approval,
   publishing, LinkedIn responses and errors.
+
+### AI content generation (Claude)
+
+When `ANTHROPIC_API_KEY` is set, `npm run generate` writes the weekly series with
+Claude via the official `@anthropic-ai/sdk`:
+
+- **Prompt-management layer** (`src/prompts/`) — prompts are externalized and
+  composed, never hardcoded in the generator: `executive.prompt.ts` (brand
+  persona), `arabic.prompt.ts` (Arabic-first voice), `case-study.prompt.ts`
+  (per-post-type guidance), and `linkedin.prompt.ts` (composes system + user +
+  the JSON output schema).
+- **Grounded** — the composed prompt injects the matched knowledge (experience,
+  project, achievement, lesson), the target audience per post type, the content
+  pillar, and the list of forbidden "generic AI" phrases.
+- **Structured output** — the model is constrained to a JSON schema
+  (`output_config.format`), so the 3 posts + infographic briefs parse reliably.
+- **Config** — model (`ANTHROPIC_MODEL`, default `claude-opus-5`), effort
+  (`ANTHROPIC_EFFORT`), max tokens, and an on/off switch (`CONTENT_AI`). See
+  `.env.example`.
+
+The `IAIProvider` seam means another backend can be swapped in behind the same
+interface; the `AnthropicProvider` is the default implementation.
 
 `data/` and `logs/` are git-ignored.
 
@@ -190,8 +219,10 @@ src/
 ├── knowledge/      real-experience corpus + retrieval service (grounding)
 ├── strategy/       content pillars, audience mapper, pillar-balanced selection
 ├── validators/     brand + quality + publishing guardrails
-├── generator/      IContentGenerator + template generator + writing style
-│                   (grounds content in knowledge; IAIProvider stub for AI)
+├── prompts/        externalized, composed prompts (executive / arabic /
+│                   case-study / linkedin) + JSON output schema
+├── generator/      IContentGenerator + factory; template + AI (Claude) generators;
+│                   IAIProvider + AnthropicProvider (providers/)
 ├── infographic/    prompt builder + brand style + IImageProvider stub
 ├── linkedin/       ILinkedInProvider + service + OAuth placeholder
 ├── commands/       seed · generate · drafts · preview · approve · publish
@@ -222,11 +253,9 @@ typing (strict TypeScript), clear error handling, modular provider interfaces.
 ## Future roadmap
 
 Delivered so far: **core workflow** + **brand engine, knowledge base, strategy
-engine and guardrails**. Planned next:
+engine and guardrails** + **prompt-management layer and Claude (AI) generation**.
+Planned next:
 
-- **Prompt management layer** — `src/prompts/` externalised, versioned prompts
-  (executive / Arabic / case-study / LinkedIn) so nothing is hardcoded in the
-  generator.
 - **Performance analytics** — `src/analytics/` track views/likes/comments/shares
   and learn best topics, hooks and posting times.
 - **Extended lifecycle** — `idea → draft → review → approved → scheduled →

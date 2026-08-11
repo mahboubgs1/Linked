@@ -10,20 +10,23 @@
 
 import { TopicService } from '../core/topic/topic.service';
 import { DraftService } from '../core/draft/draft.service';
-import { TemplateContentGenerator } from '../generator/template.generator';
+import { createContentGenerator, GeneratorChoice } from '../generator';
 import { loadCalendar } from '../core/calendar/calendar.model';
 import { SEED_TOPICS } from '../data/seed-topics';
 import { logger } from '../logging/logger';
 import { parseArgs, getString, run, line } from './util/cli';
 import { renderDraftRow } from './util/render';
 
-run(() => {
+run(async () => {
   const args = parseArgs();
   const requestedTopic = getString(args, 'topic');
+  const generatorChoice = getString(args, 'generator') as
+    | GeneratorChoice
+    | undefined;
 
   const topics = new TopicService();
   const drafts = new DraftService();
-  const generator = new TemplateContentGenerator();
+  const generator = createContentGenerator(generatorChoice);
   const calendar = loadCalendar();
 
   // First-run convenience: seed topics if the store is empty.
@@ -43,7 +46,7 @@ run(() => {
     );
   }
 
-  const series = generator.generateSeries(topic, calendar);
+  const series = await generator.generateSeries(topic, calendar);
   const created = series.posts.map((post) =>
     drafts.createFromGenerated(post, topic),
   );
@@ -56,6 +59,7 @@ run(() => {
 
   console.log(line('═'));
   console.log(`Topic: ${topic.title}`);
+  console.log(`Generator: ${generator.name}`);
   console.log(`Generated ${created.length} connected drafts:`);
   console.log(line('─'));
   created.forEach((d) => console.log(renderDraftRow(d)));

@@ -23,9 +23,32 @@ export interface LinkedInConfig {
   dryRun: boolean;
 }
 
+export type AIEffort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+
+export interface AIConfig {
+  /** Anthropic API key (from ANTHROPIC_API_KEY). */
+  apiKey?: string;
+  /** Model id, default claude-opus-5. */
+  model: string;
+  /** Reasoning/effort level. */
+  effort: AIEffort;
+  /** Max output tokens (streamed). */
+  maxTokens: number;
+  /** Whether AI generation is preferred when a key is available. */
+  enabled: boolean;
+}
+
 export interface AppConfig {
   linkedIn: LinkedInConfig;
+  ai: AIConfig;
   logLevel: LogLevel;
+}
+
+const AI_EFFORTS: AIEffort[] = ['low', 'medium', 'high', 'xhigh', 'max'];
+
+function parseEffort(value: string | undefined): AIEffort {
+  const v = (value ?? 'medium').trim().toLowerCase();
+  return (AI_EFFORTS as string[]).includes(v) ? (v as AIEffort) : 'medium';
 }
 
 function bool(value: string | undefined, fallback = false): boolean {
@@ -49,6 +72,14 @@ export const config: AppConfig = {
     authorUrn: process.env.LINKEDIN_AUTHOR_URN || undefined,
     apiVersion: process.env.LINKEDIN_API_VERSION || '202401',
     dryRun: bool(process.env.LINKEDIN_DRY_RUN, false),
+  },
+  ai: {
+    apiKey: process.env.ANTHROPIC_API_KEY || undefined,
+    model: process.env.ANTHROPIC_MODEL || 'claude-opus-5',
+    effort: parseEffort(process.env.ANTHROPIC_EFFORT),
+    maxTokens: Number(process.env.ANTHROPIC_MAX_TOKENS) || 16000,
+    // AI is preferred by default when a key is present; set CONTENT_AI=false to force templates.
+    enabled: bool(process.env.CONTENT_AI, true),
   },
   logLevel: parseLogLevel(process.env.LOG_LEVEL),
 };
