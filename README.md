@@ -84,6 +84,7 @@ generate, preview or approve — credentials are only needed to actually publish
 ```bash
 npm run seed                                  # load the initial topic set (idempotent)
 npm run login                                 # link your LinkedIn account (OAuth)
+npm run token:status                          # show link state, URN, expiry, live/dry-run
 npm run generate                              # generate a series for the next unused topic
 npm run generate -- --topic "Change Management"   # generate for a specific topic
 npm run drafts                                # list all drafts

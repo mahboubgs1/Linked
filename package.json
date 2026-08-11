@@ -9,6 +9,7 @@
   "scripts": {
     "seed": "ts-node src/commands/seed.ts",
     "login": "ts-node src/commands/login.ts",
+    "token:status": "ts-node src/commands/token-status.ts",
     "generate": "ts-node src/commands/generate.ts",
     "drafts": "ts-node src/commands/drafts.ts",
     "preview": "ts-node src/commands/preview.ts",
