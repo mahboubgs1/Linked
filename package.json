@@ -1,0 +1,36 @@
+{
+  "name": "linkedin-content-engine",
+  "version": "1.0.0",
+  "description": "Semi-automated LinkedIn content management and publishing system for IT Application Management. Human approval required before any publish.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "seed": "ts-node src/commands/seed.ts",
+    "login": "ts-node src/commands/login.ts",
+    "token:status": "ts-node src/commands/token-status.ts",
+    "generate": "ts-node src/commands/generate.ts",
+    "drafts": "ts-node src/commands/drafts.ts",
+    "preview": "ts-node src/commands/preview.ts",
+    "approve": "ts-node src/commands/approve.ts",
+    "publish": "ts-node src/commands/publish.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "linkedin",
+    "content",
+    "it-application-management",
+    "automation",
+    "typescript"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

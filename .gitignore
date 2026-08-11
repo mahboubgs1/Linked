@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment / secrets
+.env
+.env.local
+*.local
+
+# Runtime data (local content store) and logs
+data/
+logs/
+
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
