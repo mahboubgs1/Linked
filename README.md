@@ -83,6 +83,7 @@ generate, preview or approve — credentials are only needed to actually publish
 
 ```bash
 npm run seed                                  # load the initial topic set (idempotent)
+npm run login                                 # link your LinkedIn account (OAuth)
 npm run generate                              # generate a series for the next unused topic
 npm run generate -- --topic "Change Management"   # generate for a specific topic
 npm run drafts                                # list all drafts
@@ -135,17 +136,40 @@ automatic publishing** — that architecture is prepared for a later version.
 
 ---
 
-## LinkedIn setup (placeholder)
+## LinkedIn setup — linking your account
 
-1. Create an app at <https://www.linkedin.com/developers/apps>.
-2. Request the `w_member_social` product/scope for posting.
-3. Obtain an access token (full OAuth 2.0 flow is planned — see
-   `src/linkedin/oauth.placeholder.ts`). For V1, paste a valid token into
-   `LINKEDIN_ACCESS_TOKEN` and set `LINKEDIN_AUTHOR_URN`.
-4. Set `LINKEDIN_DRY_RUN=false` when you're ready to publish for real.
+Publishing is behind the `ILinkedInProvider` interface and reads credentials
+only from the environment / stored token. To link your account directly:
 
-The LinkedIn integration is behind the `ILinkedInProvider` interface so OAuth or
-an alternative posting backend can be added later without touching the workflow.
+1. **Create a LinkedIn app** at <https://www.linkedin.com/developers/apps>.
+2. **Add products** on the app's *Products* tab:
+   - **Share on LinkedIn** → grants `w_member_social` (permission to post).
+   - **Sign In with LinkedIn using OpenID Connect** → grants `openid profile`
+     so the tool can auto-resolve your author URN.
+   (LinkedIn reviews/approves these — this step is on their side.)
+3. **Configure `.env`** with the app's `LINKEDIN_CLIENT_ID`,
+   `LINKEDIN_CLIENT_SECRET`, and a `LINKEDIN_REDIRECT_URI`. Register that exact
+   redirect URI on the app's *Auth* tab (default:
+   `http://localhost:3000/auth/linkedin/callback`).
+4. **Log in:**
+
+   ```bash
+   npm run login
+   ```
+
+   This opens LinkedIn, you approve, and the tool captures the access token,
+   resolves your author URN, and saves both to `data/linkedin-token.json`
+   (git-ignored). Re-run it when the token expires (~60 days).
+5. **Go live:** set `LINKEDIN_DRY_RUN=false` in `.env`, then
+   `npm run publish -- --id <approvedDraftId>` posts for real.
+
+**Credential precedence:** if `LINKEDIN_ACCESS_TOKEN` is set in `.env` it wins
+(handy for CI or a manually-pasted token); otherwise the stored OAuth token is
+used. Until you link, `publish` stays in safe **dry-run** mode.
+
+> OAuth details live in `src/linkedin/oauth.service.ts`; token storage in
+> `src/linkedin/token-store.ts`. Refresh-token renewal is supported when your
+> app issues refresh tokens.
 
 ---
 

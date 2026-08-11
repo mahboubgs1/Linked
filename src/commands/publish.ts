@@ -11,7 +11,8 @@
 
 import { DraftService } from '../core/draft/draft.service';
 import { LinkedInService } from '../linkedin/linkedin.service';
-import { config, missingPublishCredentials } from '../config/env';
+import { config } from '../config/env';
+import { resolveLinkedInCredentials } from '../linkedin/credentials';
 import { logger } from '../logging/logger';
 import { validateForPublishing } from '../validators/publishing.validator';
 import { parseArgs, getString, run, line } from './util/cli';
@@ -48,14 +49,24 @@ run(async () => {
     throw new Error('Draft failed publishing guardrails (see errors above).');
   }
 
-  const willReallyPost = !config.linkedIn.dryRun && !!config.linkedIn.accessToken;
+  const creds = resolveLinkedInCredentials();
+  const willReallyPost = !config.linkedIn.dryRun && !!creds.accessToken;
+
   if (willReallyPost) {
-    const missing = missingPublishCredentials();
-    if (missing.length > 0) {
-      throw new Error(`Missing required env vars: ${missing.join(', ')}.`);
+    if (creds.expired) {
+      throw new Error('LinkedIn token has expired. Run `npm run login` to re-link.');
     }
+    if (!creds.authorUrn) {
+      throw new Error(
+        'No author URN available. Run `npm run login`, or set LINKEDIN_AUTHOR_URN in .env.',
+      );
+    }
+    console.log(`ℹ️  Publishing for real via ${creds.source === 'oauth' ? 'OAuth token' : 'env token'}.\n`);
   } else {
-    console.log('ℹ️  Running in DRY-RUN mode (no real LinkedIn post). See .env to configure real publishing.\n');
+    const why = config.linkedIn.dryRun
+      ? 'LINKEDIN_DRY_RUN=true'
+      : 'not linked yet — run `npm run login`';
+    console.log(`ℹ️  Running in DRY-RUN mode (${why}). No real LinkedIn post.\n`);
   }
 
   const text = `${draft.body}\n\n${draft.hashtags.join(' ')}`;
@@ -63,7 +74,7 @@ run(async () => {
 
   const result = await linkedIn.publish({
     text,
-    authorUrn: config.linkedIn.authorUrn ?? 'urn:li:person:DRYRUN',
+    authorUrn: creds.authorUrn ?? 'urn:li:person:DRYRUN',
   });
 
   const updated = drafts.markPublished(draft.id, result.id);

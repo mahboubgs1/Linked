@@ -12,6 +12,7 @@
 
 import { config } from '../config/env';
 import { logger } from '../logging/logger';
+import { resolveLinkedInCredentials } from './credentials';
 import {
   ILinkedInProvider,
   LinkedInPostContent,
@@ -24,17 +25,27 @@ export class LinkedInService implements ILinkedInProvider {
   readonly name = 'linkedin';
 
   async publish(content: LinkedInPostContent): Promise<LinkedInPublishResult> {
-    const token = config.linkedIn.accessToken;
+    const creds = resolveLinkedInCredentials();
+    const token = creds.accessToken;
     const useDryRun = config.linkedIn.dryRun || !token;
 
     if (useDryRun) {
       const id = `dryrun_${Date.now().toString(36)}`;
+      const reason = config.linkedIn.dryRun
+        ? 'LINKEDIN_DRY_RUN=true'
+        : 'no access token (run `npm run login`)';
       logger.warn(
         'publishing',
-        `DRY-RUN publish (no real API call). Reason: ${config.linkedIn.dryRun ? 'LINKEDIN_DRY_RUN=true' : 'no access token'}.`,
+        `DRY-RUN publish (no real API call). Reason: ${reason}.`,
         { author: content.authorUrn, chars: content.text.length },
       );
       return { id, dryRun: true, raw: { simulated: true, text: content.text } };
+    }
+
+    if (creds.expired) {
+      throw new Error(
+        'LinkedIn access token has expired. Run `npm run login` again to re-link.',
+      );
     }
 
     const payload = {
