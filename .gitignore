@@ -9,9 +9,11 @@ dist/
 .env.local
 *.local
 
-# Runtime data (local content store) and logs
-data/
-logs/
+# Runtime data (local content store) and logs.
+# Anchored to the repo root with a leading slash so they do NOT match
+# source folders like src/data/ (which holds committed seed data).
+/data/
+/logs/
 
 # OS / editor
 .DS_Store
