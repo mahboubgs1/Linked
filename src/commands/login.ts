@@ -27,11 +27,22 @@ import { run, line } from './util/cli';
 
 function tryOpenBrowser(url: string): void {
   const platform = process.platform;
-  const cmd =
-    platform === 'darwin' ? 'open' : platform === 'win32' ? 'cmd' : 'xdg-open';
-  const args = platform === 'win32' ? ['/c', 'start', '', url] : [url];
   try {
-    const child = spawn(cmd, args, { stdio: 'ignore', detached: true });
+    let child;
+    if (platform === 'win32') {
+      // On Windows, cmd's `start` treats `&` as a command separator, which
+      // truncates an OAuth URL at the first `&` (dropping client_id, scope,
+      // etc.). Wrap the whole command in one verbatim string with the URL
+      // quoted so `&` is taken literally.
+      child = spawn('cmd.exe', ['/c', `start "" "${url}"`], {
+        windowsVerbatimArguments: true,
+        stdio: 'ignore',
+        detached: true,
+      });
+    } else {
+      const cmd = platform === 'darwin' ? 'open' : 'xdg-open';
+      child = spawn(cmd, [url], { stdio: 'ignore', detached: true });
+    }
     child.on('error', () => {
       /* ignore — the URL is printed as a fallback */
     });
@@ -115,11 +126,14 @@ run(async () => {
   console.log('Linking to LinkedIn…');
   console.log(`Scopes: ${scopes().join(' ')}`);
   console.log(line('─'));
-  console.log('Open this URL in your browser to authorize (attempting to open it now):');
+  console.log('A browser window should open automatically. If it shows an error');
+  console.log('or does not open, COPY the entire URL below and paste it into your');
+  console.log('browser address bar (copy the whole line — it is long):');
   console.log('');
   console.log(authUrl);
   console.log('');
   console.log(line('─'));
+  console.log('Waiting for you to authorize in the browser…');
 
   tryOpenBrowser(authUrl);
 
