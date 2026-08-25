@@ -1,0 +1,558 @@
+<title>حزمة تقارير مديونية الموظفين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:      #ffffff;
+    --ground:     #eef1f4;
+    --surface:    #f7f9fa;
+    --ink:        #121a20;
+    --ink-soft:   #4a5a66;
+    --ink-faint:  #7b8b96;
+    --rule:       #d7dfe4;
+    --rule-soft:  #e7edf0;
+    --accent:     #0f5c4d;
+    --accent-soft:#e2efe9;
+    --warn:       #8a5a09;
+    --warn-soft:  #f7ecd7;
+    --crit:       #9c2f2a;
+    --crit-soft:  #f8e5e3;
+    --ok:         #1c6b45;
+    --ok-soft:    #e0f0e6;
+    --shadow:     0 1px 2px rgba(18,26,32,.06), 0 8px 24px -16px rgba(18,26,32,.28);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #141a1f;
+      --ground:     #0c1114;
+      --surface:    #1a2127;
+      --ink:        #e4eaee;
+      --ink-soft:   #a3b2bc;
+      --ink-faint:  #76858f;
+      --rule:       #2a343c;
+      --rule-soft:  #212a31;
+      --accent:     #55b997;
+      --accent-soft:#14322a;
+      --warn:       #d5a45a;
+      --warn-soft:  #33280f;
+      --crit:       #e08078;
+      --crit-soft:  #37201e;
+      --ok:         #62bd8e;
+      --ok-soft:    #16301f;
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:      #141a1f;
+    --ground:     #0c1114;
+    --surface:    #1a2127;
+    --ink:        #e4eaee;
+    --ink-soft:   #a3b2bc;
+    --ink-faint:  #76858f;
+    --rule:       #2a343c;
+    --rule-soft:  #212a31;
+    --accent:     #55b997;
+    --accent-soft:#14322a;
+    --warn:       #d5a45a;
+    --warn-soft:  #33280f;
+    --crit:       #e08078;
+    --crit-soft:  #37201e;
+    --ok:         #62bd8e;
+    --ok-soft:    #16301f;
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+
+  body {
+    direction: rtl;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 20px 72px; display: flex; flex-direction: column; gap: 34px; }
+
+  /* ---------- masthead ---------- */
+  .masthead { display: flex; flex-direction: column; gap: 14px; padding-bottom: 26px; border-bottom: 2px solid var(--ink); }
+  .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  h1 { font-size: clamp(28px, 4.6vw, 42px); font-weight: 700; line-height: 1.25; letter-spacing: -.015em; text-wrap: balance; margin: 0; }
+  .lede { max-width: 62ch; color: var(--ink-soft); font-size: 16.5px; font-weight: 300; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .chip { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; padding: 4px 10px; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink-soft); background: var(--paper); }
+  .chip.draft { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
+
+  /* ---------- index of the three reports ---------- */
+  .index { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .idx { background: var(--paper); border: 1px solid var(--rule); border-top: 3px solid var(--accent); padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow); }
+  .idx code { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--accent); font-weight: 600; letter-spacing: .04em; }
+  .idx h3 { margin: 0; font-size: 17px; font-weight: 600; }
+  .idx p { margin: 0; font-size: 13.5px; color: var(--ink-soft); font-weight: 300; }
+
+  /* ---------- report sheets ---------- */
+  .sheet { background: var(--paper); border: 1px solid var(--rule); box-shadow: var(--shadow); }
+  .sheet-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px; padding: 18px 22px; border-bottom: 1px solid var(--rule); background: var(--surface); }
+  .sheet-head h2 { margin: 0; font-size: 19px; font-weight: 600; }
+  .sheet-head .code { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--accent); font-weight: 600; }
+  .sheet-body { padding: 20px 22px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  .paramgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; padding: 14px; background: var(--surface); border: 1px dashed var(--rule); }
+  .param { display: flex; flex-direction: column; gap: 3px; }
+  .param span { font-size: 11.5px; color: var(--ink-faint); letter-spacing: .02em; }
+  .param b { font-weight: 500; font-size: 13.5px; border-bottom: 1px solid var(--rule); padding-bottom: 4px; }
+  .param b.req::after { content: " *"; color: var(--crit); }
+
+  .repline { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 12.5px; color: var(--ink-soft); font-family: "IBM Plex Mono", monospace; }
+
+  .scroll { overflow-x: auto; border: 1px solid var(--rule-soft); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 620px; }
+  thead th { background: var(--surface); text-align: right; font-weight: 600; font-size: 11.5px; color: var(--ink-soft); letter-spacing: .03em; padding: 9px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  tbody td { padding: 8px 10px; border-bottom: 1px solid var(--rule-soft); white-space: nowrap; }
+  td.num, th.num { text-align: left; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+  tbody tr:hover { background: var(--surface); }
+  tr.subtotal td { background: var(--surface); font-weight: 600; border-top: 1px solid var(--rule); }
+  tr.grand td { background: var(--accent-soft); color: var(--accent); font-weight: 700; border-top: 2px solid var(--accent); border-bottom: none; }
+  tr.groupline td { background: var(--surface); font-weight: 600; font-size: 12px; color: var(--ink-soft); letter-spacing: .04em; }
+  td.neg { color: var(--crit); }
+  .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 2px; font-weight: 500; }
+  .tag.ok   { background: var(--ok-soft);   color: var(--ok); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .tag.crit { background: var(--crit-soft); color: var(--crit); }
+  .tag.mute { background: var(--rule-soft); color: var(--ink-faint); }
+  .link { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: default; }
+
+  .control { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 11px 14px; background: var(--ok-soft); border-right: 3px solid var(--ok); font-size: 13px; color: var(--ok); font-weight: 500; }
+  .control.warn { background: var(--warn-soft); border-right-color: var(--warn); color: var(--warn); }
+  .control .mono { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+
+  .note { font-size: 12.5px; color: var(--ink-faint); font-weight: 300; }
+
+  /* ---------- confirmation form ---------- */
+  .form { border: 2px solid var(--ink); padding: 0; }
+  .form-head { text-align: center; padding: 16px 18px; border-bottom: 1px solid var(--ink); display: flex; flex-direction: column; gap: 3px; }
+  .form-head .org { font-size: 15px; font-weight: 600; }
+  .form-head .ttl { font-size: 17px; font-weight: 700; }
+  .form-head .ttl-en { font-size: 12.5px; color: var(--ink-soft); font-weight: 400; letter-spacing: .02em; direction: ltr; }
+  .form-ref { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 9px 18px; border-bottom: 1px solid var(--rule); font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-soft); background: var(--surface); }
+  .form-sec { padding: 15px 18px; border-bottom: 1px solid var(--rule); }
+  .form-sec h4 { margin: 0 0 10px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  .kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 6px 22px; font-size: 13.5px; }
+  .kv div { display: flex; gap: 8px; }
+  .kv dt { color: var(--ink-faint); min-width: 92px; }
+  .kv dd { margin: 0; font-weight: 500; }
+  .balrows { display: flex; flex-direction: column; gap: 0; font-size: 13.5px; }
+  .balrow { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px dotted var(--rule); }
+  .balrow.final { border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); font-weight: 700; font-size: 15px; margin-top: 6px; }
+  .balrow .v { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+  .decl { font-size: 13.5px; line-height: 2; color: var(--ink); background: var(--surface); padding: 14px 16px; border-right: 3px solid var(--accent); }
+  .decl.en { direction: ltr; text-align: left; border-right: 0; border-left: 3px solid var(--accent); font-size: 12.5px; line-height: 1.85; color: var(--ink-soft); }
+  .opts { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; font-size: 13.5px; }
+  .opt { display: flex; align-items: baseline; gap: 9px; }
+  .box { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--ink); flex: 0 0 auto; }
+  .fill { flex: 1; border-bottom: 1px dotted var(--ink-faint); min-width: 90px; }
+  .sigs { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px 26px; }
+  .sig { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; }
+  .sig .role { font-weight: 600; }
+  .sig .role .opt-tag { font-weight: 400; color: var(--ink-faint); font-size: 11px; }
+  .sig .lines { display: flex; gap: 10px; color: var(--ink-faint); }
+  .sig .lines span { flex: 1; border-bottom: 1px solid var(--ink-faint); padding-top: 18px; text-align: center; font-size: 11px; }
+  .form-foot { padding: 9px 18px; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-faint); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+  /* ---------- footer ---------- */
+  .footer { border-top: 1px solid var(--rule); padding-top: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--ink-soft); }
+  .footer strong { color: var(--ink); }
+  .footer ul { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 5px; }
+  a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Yardi Voyager · General Ledger</p>
+    <h1>حزمة تقارير مديونية الموظفين</h1>
+    <p class="lede">
+      ثلاثة تقارير مترابطة لمتابعة مديونية الموظف وتلبية متطلبات التدقيق المالي: ملخص إداري،
+      كشف حساب تفصيلي برصيد متحرك، ونموذج اعتماد رصيد لنهاية السنة. مبنية على معاملات الحسابات
+      العامة مع دعم السيجمنتيشن وتعدد الشركات والكيانات.
+    </p>
+    <div class="chips">
+      <span class="chip">GL · Employee Receivables</span>
+      <span class="chip">تعدد الكيانات</span>
+      <span class="chip">سيجمنتيشن حتى ٦ شرائح</span>
+      <span class="chip">تصدير Excel · PDF</span>
+      <span class="chip draft">نماذج أولية — للمراجعة والاعتماد</span>
+    </div>
+  </header>
+
+  <section class="index">
+    <article class="idx">
+      <code>EMPRCV-R1</code>
+      <h3>ملخص مديونية الموظفين</h3>
+      <p>صف لكل موظف بالرصيد حتى تاريخ معيّن، موزّعاً على الأعمار والفئات، مع ضابط مطابقة إلزامي مع ميزان المراجعة.</p>
+    </article>
+    <article class="idx">
+      <code>EMPRCV-R2</code>
+      <h3>كشف حساب تفصيلي</h3>
+      <p>حركة تفصيلية مرتّبة زمنياً برصيد متحرك ودرل داون إلى المستند في Voyager.</p>
+    </article>
+    <article class="idx">
+      <code>EMPRCV-R3</code>
+      <h3>نموذج اعتماد الرصيد</h3>
+      <p>صفحة لكل موظف بنص إقرار وتوقيع واعتمادات اختيارية، مبنية على لقطة رصيد مجمّدة.</p>
+    </article>
+  </section>
+
+  <!-- ============ R1 ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <h2>ملخص مديونية الموظفين</h2>
+      <span class="code">EMPRCV-R1</span>
+    </div>
+    <div class="sheet-body">
+
+      <div class="paramgrid">
+        <div class="param"><span>الشركة / الكيان</span><b class="req">الكل (المصرّح به)</b></div>
+        <div class="param"><span>تاريخ الرصيد</span><b class="req">31/12/2026</b></div>
+        <div class="param"><span>الشريحة ١ — الفرع</span><b>الكل</b></div>
+        <div class="param"><span>الشريحة ٢ — القسم</span><b>الكل</b></div>
+        <div class="param"><span>فئة المديونية</span><b>الكل</b></div>
+        <div class="param"><span>حالة الموظف</span><b>الكل</b></div>
+        <div class="param"><span>أساس الأعمار</span><b>FIFO</b></div>
+        <div class="param"><span>حد أدنى للرصيد</span><b>0.00</b></div>
+      </div>
+
+      <div class="repline">
+        <span>شركة النموذج القابضة</span>
+        <span>العملة: SAR</span>
+        <span>صفحة ١ من ٤</span>
+      </div>
+
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>الرقم</th><th>الاسم</th><th>القسم</th><th>الحالة</th>
+              <th class="num">الرصيد</th>
+              <th class="num">٠–٣٠</th><th class="num">٣١–٦٠</th><th class="num">٦١–٩٠</th>
+              <th class="num">٩١–١٨٠</th><th class="num">&gt; ١٨٠</th>
+              <th>المصادقة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="groupline"><td colspan="11">الكيان 001 — الشركة الرئيسية</td></tr>
+            <tr>
+              <td>1042</td><td>أحمد ع. المطيري</td><td>المالية</td><td><span class="tag ok">نشط</span></td>
+              <td class="num">12,500.00</td><td class="num">4,000.00</td><td class="num">3,500.00</td>
+              <td class="num">5,000.00</td><td class="num">0.00</td><td class="num">0.00</td>
+              <td><span class="tag ok">موقّع</span></td>
+            </tr>
+            <tr>
+              <td>1088</td><td>سارة م. الحربي</td><td>التشغيل</td><td><span class="tag ok">نشط</span></td>
+              <td class="num">8,750.00</td><td class="num">8,750.00</td><td class="num">0.00</td>
+              <td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td>
+              <td><span class="tag mute">صادر</span></td>
+            </tr>
+            <tr>
+              <td>1173</td><td>خالد س. العتيبي</td><td>الصيانة</td><td><span class="tag warn">منتهي الخدمة</span></td>
+              <td class="num">21,300.00</td><td class="num">0.00</td><td class="num">0.00</td>
+              <td class="num">0.00</td><td class="num">6,300.00</td><td class="num">15,000.00</td>
+              <td><span class="tag crit">متأخر</span></td>
+            </tr>
+            <tr>
+              <td>1201</td><td>نورة ف. القحطاني</td><td>الموارد البشرية</td><td><span class="tag ok">نشط</span></td>
+              <td class="num neg">(1,250.00)</td><td class="num">—</td><td class="num">—</td>
+              <td class="num">—</td><td class="num">—</td><td class="num">—</td>
+              <td><span class="tag mute">غير مطلوب</span></td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="4">إجمالي الكيان 001</td>
+              <td class="num">41,300.00</td><td class="num">12,750.00</td><td class="num">3,500.00</td>
+              <td class="num">5,000.00</td><td class="num">6,300.00</td><td class="num">15,000.00</td><td></td>
+            </tr>
+            <tr class="groupline"><td colspan="11">الكيان 002 — شركة العقارات</td></tr>
+            <tr>
+              <td>2015</td><td>فهد ن. الدوسري</td><td>المشاريع</td><td><span class="tag ok">نشط</span></td>
+              <td class="num">14,200.00</td><td class="num">2,200.00</td><td class="num">4,000.00</td>
+              <td class="num">8,000.00</td><td class="num">0.00</td><td class="num">0.00</td>
+              <td><span class="tag ok">موقّع</span></td>
+            </tr>
+            <tr>
+              <td>2044</td><td>منى ط. الزهراني</td><td>المحاسبة</td><td><span class="tag ok">نشط</span></td>
+              <td class="num">4,700.00</td><td class="num">1,200.00</td><td class="num">0.00</td>
+              <td class="num">0.00</td><td class="num">3,500.00</td><td class="num">0.00</td>
+              <td><span class="tag warn">معترض</span></td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="4">إجمالي الكيان 002</td>
+              <td class="num">18,900.00</td><td class="num">3,400.00</td><td class="num">4,000.00</td>
+              <td class="num">8,000.00</td><td class="num">3,500.00</td><td class="num">0.00</td><td></td>
+            </tr>
+            <tr>
+              <td colspan="4">غير منسوب <span class="tag mute">#UNMAPPED</span></td>
+              <td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td>
+              <td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td><td></td>
+            </tr>
+            <tr class="grand">
+              <td colspan="4">الإجمالي العام</td>
+              <td class="num">60,200.00</td><td class="num">16,150.00</td><td class="num">7,500.00</td>
+              <td class="num">13,000.00</td><td class="num">9,800.00</td><td class="num">15,000.00</td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="control">
+        <span>✔ ضابط المطابقة</span>
+        <span class="mono">رصيد حسابات النطاق في الأستاذ العام = 60,200.00 — الفرق = 0.00</span>
+      </div>
+      <p class="note">
+        الرصيد واسم الموظف روابط درل داون: الرصيد يفتح كشف الحساب (R2)، والاسم يفتح نموذج
+        الاعتماد (R3). الأرصدة الدائنة تظهر بين قوسين ولا تدخل شرائح الأعمار.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ R2 ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <h2>كشف حساب مديونية موظف</h2>
+      <span class="code">EMPRCV-R2</span>
+    </div>
+    <div class="sheet-body">
+
+      <div class="paramgrid">
+        <div class="param"><span>الكيان</span><b class="req">001 — الشركة الرئيسية</b></div>
+        <div class="param"><span>الموظف</span><b class="req">1042 — أحمد ع. المطيري</b></div>
+        <div class="param"><span>من تاريخ</span><b class="req">01/01/2026</b></div>
+        <div class="param"><span>إلى تاريخ</span><b class="req">31/12/2026</b></div>
+        <div class="param"><span>القسم</span><b>المالية</b></div>
+        <div class="param"><span>العملة</span><b>SAR</b></div>
+      </div>
+
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>ت. الترحيل</th><th>النوع</th><th>المستند</th>
+              <th>الحساب</th><th>الفئة</th><th>البيان</th>
+              <th class="num">مدين</th><th class="num">دائن</th><th class="num">الرصيد المتحرك</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="subtotal">
+              <td colspan="9">الرصيد الافتتاحي كما في 01/01/2026</td>
+              <td class="num">6,000.00</td>
+            </tr>
+            <tr>
+              <td>1</td><td>15/02/2026</td><td>فاتورة</td><td><span class="link">AP-10233</span></td>
+              <td>1310-01</td><td>سلفة</td><td>سلفة شخصية</td>
+              <td class="num">10,000.00</td><td class="num">—</td><td class="num">16,000.00</td>
+            </tr>
+            <tr>
+              <td>2</td><td>28/02/2026</td><td>رواتب</td><td><span class="link">PR-02-26</span></td>
+              <td>1310-01</td><td>سلفة</td><td>خصم شهري</td>
+              <td class="num">—</td><td class="num">2,000.00</td><td class="num">14,000.00</td>
+            </tr>
+            <tr>
+              <td>3</td><td>31/03/2026</td><td>رواتب</td><td><span class="link">PR-03-26</span></td>
+              <td>1310-01</td><td>سلفة</td><td>خصم شهري</td>
+              <td class="num">—</td><td class="num">2,000.00</td><td class="num">12,000.00</td>
+            </tr>
+            <tr>
+              <td>4</td><td>10/05/2026</td><td>قيد</td><td><span class="link">JE-00891</span></td>
+              <td>1320-02</td><td>عهدة</td><td>عهدة سفر — مؤتمر الرياض</td>
+              <td class="num">5,000.00</td><td class="num">—</td><td class="num">17,000.00</td>
+            </tr>
+            <tr>
+              <td>5</td><td>30/06/2026</td><td>قيد</td><td><span class="link">JE-01120</span></td>
+              <td>1320-02</td><td>عهدة</td><td>تصفية عهدة</td>
+              <td class="num">—</td><td class="num">4,500.00</td><td class="num">12,500.00</td>
+            </tr>
+            <tr>
+              <td></td><td colspan="9" style="white-space:normal; color:var(--ink-faint); font-size:12.5px;">
+                └ تفاصيل المستند (درل داون): 1320-02 دائن 4,500.00 · 5110-03 مدين 4,200.00 · 1010-01 مدين 300.00
+              </td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="7">إجمالي الحركة خلال الفترة</td>
+              <td class="num">15,000.00</td><td class="num">8,500.00</td><td class="num">6,500.00</td>
+            </tr>
+            <tr class="grand">
+              <td colspan="9">الرصيد الختامي كما في 31/12/2026</td>
+              <td class="num">12,500.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="repline">
+        <span>الأعمار: ٠–٣٠ = 4,000.00</span><span>٣١–٦٠ = 3,500.00</span>
+        <span>٦١–٩٠ = 5,000.00</span><span>الفئات: سلفة = 7,500.00 · عهدة = 5,000.00</span>
+      </div>
+      <div class="control"><span>✔ مطابق لملخص المديونية (R1) بتاريخ 31/12/2026 — الفرق = 0.00</span></div>
+      <div class="control warn"><span>⚠ توجد حركتان مرحّلتان بعد 31/12/2026 — الرصيد الحالي قد يختلف عن رصيد الكشف.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ R3 ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <h2>نموذج اعتماد رصيد الموظف</h2>
+      <span class="code">EMPRCV-R3</span>
+    </div>
+    <div class="sheet-body">
+      <div class="form">
+
+        <div class="form-head">
+          <span class="org">شركة النموذج القابضة — الكيان 001</span>
+          <span class="ttl">نموذج اعتماد رصيد مديونية موظف — نهاية السنة المالية</span>
+          <span class="ttl-en">Employee Receivable Balance Confirmation — Fiscal Year End</span>
+        </div>
+
+        <div class="form-ref">
+          <span>REF: EMPRCV-C-001-2026-1042-01</span>
+          <span>السنة المالية المنتهية في: 31/12/2026</span>
+          <span>تاريخ الإصدار: 05/01/2027</span>
+        </div>
+
+        <div class="form-sec">
+          <h4>بيانات الموظف</h4>
+          <dl class="kv">
+            <div><dt>رقم الموظف</dt><dd>1042</dd></div>
+            <div><dt>الاسم</dt><dd>أحمد ع. المطيري</dd></div>
+            <div><dt>القسم</dt><dd>المالية</dd></div>
+            <div><dt>المسمى</dt><dd>محاسب أول</dd></div>
+            <div><dt>تاريخ التعيين</dt><dd>01/03/2021</dd></div>
+            <div><dt>الحالة</dt><dd>نشط</dd></div>
+          </dl>
+        </div>
+
+        <div class="form-sec">
+          <h4>تفاصيل الرصيد كما في 31/12/2026 · SAR</h4>
+          <div class="balrows">
+            <div class="balrow"><span>الرصيد الافتتاحي 01/01/2026</span><span class="v">6,000.00</span></div>
+            <div class="balrow"><span>إجمالي المستحق خلال السنة (مدين)</span><span class="v">15,000.00</span></div>
+            <div class="balrow"><span>إجمالي المسدَّد خلال السنة (دائن)</span><span class="v">(8,500.00)</span></div>
+            <div class="balrow final"><span>الرصيد المستحق على الموظف</span><span class="v">12,500.00</span></div>
+          </div>
+          <p class="note" style="margin-top:10px;">
+            التفصيل حسب النوع: سلف 7,500.00 · عهد 5,000.00 &nbsp;|&nbsp;
+            الأعمار: ٠–٣٠ = 4,000.00 · ٣١–٦٠ = 3,500.00 · ٦١–٩٠ = 5,000.00 · &gt; ٩٠ = 0.00
+          </p>
+        </div>
+
+        <div class="form-sec">
+          <h4>الإقرار / Declaration</h4>
+          <p class="decl">
+            أقر أنا الموقّع أدناه، بصفتي موظفاً لدى <b>شركة النموذج القابضة</b>، بأنني اطّلعت على
+            تفاصيل الرصيد المستحق عليّ والمبيّن في هذا النموذج كما هو في <b>31/12/2026</b>، وأن مبلغ
+            <b>12,500.00 ريال</b> (اثنا عشر ألفاً وخمسمائة ريال) يمثّل الرصيد الصحيح والنهائي المستحق
+            عليّ لصالح الشركة حتى ذلك التاريخ. وأتعهد بسداده وفقاً للسياسات والإجراءات المعتمدة لدى
+            الشركة، وأوافق على خصمه من مستحقاتي المالية في حال عدم السداد، وذلك في حدود ما تجيزه
+            أنظمة العمل المعمول بها.
+          </p>
+          <p class="decl en" style="margin-top:10px;">
+            I, the undersigned, confirm that I have reviewed the outstanding balance detailed in this
+            form as of 31/12/2026, and that the amount of SAR 12,500.00 represents the correct and
+            final balance due from me to the Company as at that date.
+          </p>
+          <div class="opts">
+            <span class="opt"><span class="box"></span> أقر بصحة الرصيد المبيّن أعلاه.</span>
+            <span class="opt"><span class="box"></span> لا أقر بصحة الرصيد. المبلغ الذي أقر به:
+              <span class="fill"></span> السبب: <span class="fill"></span></span>
+          </div>
+        </div>
+
+        <div class="form-sec">
+          <h4>التوقيعات</h4>
+          <div class="sigs">
+            <div class="sig">
+              <span class="role">الموظف</span>
+              <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+            </div>
+            <div class="sig">
+              <span class="role">المدير المباشر <span class="opt-tag">— اعتماد اختياري</span></span>
+              <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+            </div>
+            <div class="sig">
+              <span class="role">الموارد البشرية <span class="opt-tag">— اعتماد اختياري</span></span>
+              <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+            </div>
+            <div class="sig">
+              <span class="role">المدير المالي <span class="opt-tag">— اعتماد اختياري</span></span>
+              <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-foot">
+          <span>صادر آلياً من نظام Yardi Voyager · المستخدم: mahboub · 05/01/2027 09:14</span>
+          <span>صفحة ١ من ١ · نص الإقرار: AR v1.0</span>
+        </div>
+      </div>
+
+      <p class="note">
+        الرصيد مبني على لقطة مجمّدة (Snapshot) لتاريخ نهاية السنة، لا على استعلام حي — أي قيد بأثر
+        رجعي بعد الإصدار يُكتشف عبر بصمة اللقطة ويظهر في تقرير الفروقات بدل أن يُفاجئ المدقق.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ R3L ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <h2>سجل متابعة نماذج الاعتماد</h2>
+      <span class="code">EMPRCV-R3L</span>
+    </div>
+    <div class="sheet-body">
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>المرجع</th><th>الموظف</th><th class="num">الرصيد</th>
+              <th>صدر في</th><th>الحالة</th><th>مستلم في</th><th class="num">أيام معلّقة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>EMPRCV-C-001-2026-1042-01</td><td>1042 أحمد المطيري</td><td class="num">12,500.00</td>
+              <td>05/01/2027</td><td><span class="tag ok">موقّع</span></td><td>12/01/2027</td><td class="num">7</td>
+            </tr>
+            <tr>
+              <td>EMPRCV-C-001-2026-1088-01</td><td>1088 سارة الحربي</td><td class="num">8,750.00</td>
+              <td>05/01/2027</td><td><span class="tag mute">صادر</span></td><td>—</td><td class="num">21</td>
+            </tr>
+            <tr>
+              <td>EMPRCV-C-001-2026-1173-01</td><td>1173 خالد العتيبي</td><td class="num">21,300.00</td>
+              <td>05/01/2027</td><td><span class="tag crit">متأخر</span></td><td>—</td><td class="num">21</td>
+            </tr>
+            <tr>
+              <td>EMPRCV-C-002-2026-2044-01</td><td>2044 منى الزهراني</td><td class="num">4,700.00</td>
+              <td>05/01/2027</td><td><span class="tag warn">معترض</span></td><td>10/01/2027</td><td class="num">5</td>
+            </tr>
+            <tr class="grand">
+              <td colspan="2">٤ نماذج · موقّعة ١ · معترض عليها ١ · معلّقة ٢</td>
+              <td class="num">47,250.00</td>
+              <td colspan="3">تغطية الرصيد الموقّع: 12,500.00 (26.5%)</td><td class="num">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">هذا السجل هو دليل الاكتمال الذي يُسلَّم للمدقق: كم نموذجاً صدر، كم عاد موقّعاً، وما نسبة تغطية الرصيد.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p><strong>حالة الحزمة:</strong> نماذج أولية للمراجعة والاعتماد من قسم المالية وفريق Yardi. البيانات المعروضة توضيحية.</p>
+    <p><strong>قبل البناء:</strong> أسماء جداول وأعمدة Yardi تختلف بين إصدارات Voyager وبين إعدادات كل عميل. الحل يعزل كل ما يلمس سكيما Yardi في طبقة واحدة، ولا يُبنى أي تقرير قبل اجتياز بوابة التحقق من السكيما:</p>
+    <ul>
+      <li>تثبيت خريطة الأسماء المنطقية ↔ الفعلية في <code>EMPRCV_SchemaMap</code>.</li>
+      <li>إثبات أن مجموع طبقة العزل يطابق ميزان المراجعة القياسي في Voyager.</li>
+      <li>تنفيذ أمان الكيانات ضد جداول أمان Voyager — يُسلَّم مغلقاً افتراضياً (fail-closed).</li>
+    </ul>
+    <p><strong>الوثائق الكاملة:</strong> التصميم الوظيفي · التصميم التقني · منطق البيانات وجداول Yardi · الأداء والصلاحيات وخطة النشر · نصوص SQL المرجعية.</p>
+  </footer>
+
+</div>
