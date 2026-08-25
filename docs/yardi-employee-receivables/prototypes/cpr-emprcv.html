@@ -1,0 +1,365 @@
+<title>طلب تطوير تقارير المديونية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:#ffffff; --ground:#eef1f4; --surface:#f7f9fa;
+    --ink:#121a20; --ink-soft:#4a5a66; --ink-faint:#7b8b96;
+    --rule:#d7dfe4; --rule-soft:#e7edf0;
+    --accent:#0f5c4d; --accent-soft:#e2efe9;
+    --warn:#8a5a09; --warn-soft:#f7ecd7;
+    --crit:#9c2f2a; --crit-soft:#f8e5e3;
+    --ok:#1c6b45; --ok-soft:#e0f0e6;
+    --shadow:0 1px 2px rgba(18,26,32,.06), 0 8px 24px -16px rgba(18,26,32,.28);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#141a1f; --ground:#0c1114; --surface:#1a2127;
+      --ink:#e4eaee; --ink-soft:#a3b2bc; --ink-faint:#76858f;
+      --rule:#2a343c; --rule-soft:#212a31;
+      --accent:#55b997; --accent-soft:#14322a;
+      --warn:#d5a45a; --warn-soft:#33280f;
+      --crit:#e08078; --crit-soft:#37201e;
+      --ok:#62bd8e; --ok-soft:#16301f;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#141a1f; --ground:#0c1114; --surface:#1a2127;
+    --ink:#e4eaee; --ink-soft:#a3b2bc; --ink-faint:#76858f;
+    --rule:#2a343c; --rule-soft:#212a31;
+    --accent:#55b997; --accent-soft:#14322a;
+    --warn:#d5a45a; --warn-soft:#33280f;
+    --crit:#e08078; --crit-soft:#37201e;
+    --ok:#62bd8e; --ok-soft:#16301f;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+
+  body { direction: rtl; background: var(--ground); color: var(--ink);
+         font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+         font-size:15px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 40px 20px 72px; display:flex; flex-direction:column; gap:30px; }
+
+  .masthead { display:flex; flex-direction:column; gap:12px; padding-bottom:22px; border-bottom:2px solid var(--ink); }
+  .eyebrow { font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:600; }
+  h1 { font-size:clamp(26px,4.4vw,38px); font-weight:700; line-height:1.25; letter-spacing:-.015em; text-wrap:balance; margin:0; }
+  .lede { max-width:62ch; color:var(--ink-soft); font-size:16px; font-weight:300; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { font-family:"IBM Plex Mono",monospace; font-size:11.5px; padding:4px 10px; border:1px solid var(--rule); border-radius:2px; color:var(--ink-soft); background:var(--paper); }
+  .chip.draft { color:var(--warn); border-color:var(--warn); background:var(--warn-soft); }
+  .chip.pri { color:var(--crit); border-color:var(--crit); background:var(--crit-soft); }
+
+  section.block { background:var(--paper); border:1px solid var(--rule); box-shadow:var(--shadow); }
+  .block > header { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:15px 20px; border-bottom:1px solid var(--rule); background:var(--surface); }
+  .block > header h2 { margin:0; font-size:17px; font-weight:600; }
+  .block > header .n { font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--accent); font-weight:600; }
+  .block .body { padding:18px 20px 22px; display:flex; flex-direction:column; gap:15px; }
+
+  .kv { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:9px 26px; font-size:13.5px; }
+  .kv div { display:flex; gap:9px; align-items:baseline; border-bottom:1px dotted var(--rule); padding-bottom:6px; }
+  .kv dt { color:var(--ink-faint); min-width:118px; flex:0 0 auto; }
+  .kv dd { margin:0; font-weight:500; }
+  .kv dd.blank { color:var(--ink-faint); font-weight:400; font-style:normal; }
+
+  .scroll { overflow-x:auto; border:1px solid var(--rule-soft); }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; min-width:520px; }
+  thead th { background:var(--surface); text-align:right; font-weight:600; font-size:11.5px; color:var(--ink-soft); letter-spacing:.03em; padding:9px 11px; border-bottom:1px solid var(--rule); white-space:nowrap; }
+  tbody td { padding:9px 11px; border-bottom:1px solid var(--rule-soft); vertical-align:top; }
+  tbody tr:hover { background:var(--surface); }
+  td.num, th.num { text-align:left; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr.total td { background:var(--accent-soft); color:var(--accent); font-weight:700; border-top:2px solid var(--accent); }
+  td.id { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-faint); white-space:nowrap; }
+
+  .tag { display:inline-block; font-size:11px; padding:1px 8px; border-radius:2px; font-weight:500; white-space:nowrap; }
+  .tag.ok{background:var(--ok-soft);color:var(--ok);} .tag.warn{background:var(--warn-soft);color:var(--warn);}
+  .tag.crit{background:var(--crit-soft);color:var(--crit);} .tag.mute{background:var(--rule-soft);color:var(--ink-faint);}
+
+  ul.list { margin:0; padding-inline-start:20px; display:flex; flex-direction:column; gap:6px; font-size:14px; }
+  ul.list li::marker { color:var(--accent); }
+
+  .callout { display:flex; gap:11px; padding:13px 15px; background:var(--warn-soft); border-right:3px solid var(--warn); color:var(--warn); font-size:13.5px; font-weight:500; }
+  .callout.gate { background:var(--crit-soft); border-right-color:var(--crit); color:var(--crit); }
+  .callout.good { background:var(--ok-soft); border-right-color:var(--ok); color:var(--ok); }
+
+  .checkrow { display:flex; align-items:baseline; gap:10px; padding:8px 0; border-bottom:1px dotted var(--rule); font-size:13.5px; }
+  .box { display:inline-block; width:13px; height:13px; border:1.5px solid var(--ink-faint); flex:0 0 auto; }
+  .checkrow .who { color:var(--ink-faint); font-size:12px; margin-inline-start:auto; white-space:nowrap; }
+  .checkrow .pid { font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--accent); flex:0 0 auto; }
+
+  .flow { font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:2; color:var(--ink-soft); background:var(--surface); border:1px dashed var(--rule); padding:14px 16px; overflow-x:auto; white-space:pre; direction:ltr; text-align:left; }
+
+  .sigs { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px 26px; }
+  .sig { display:flex; flex-direction:column; gap:6px; font-size:13px; }
+  .sig .role { font-weight:600; }
+  .sig .opts { display:flex; gap:12px; color:var(--ink-faint); font-size:12px; }
+  .sig .opts span { display:flex; align-items:center; gap:5px; }
+  .sig .lines { display:flex; gap:10px; }
+  .sig .lines span { flex:1; border-bottom:1px solid var(--ink-faint); padding-top:20px; text-align:center; font-size:11px; color:var(--ink-faint); }
+
+  .note { font-size:12.5px; color:var(--ink-faint); font-weight:300; }
+  .footer { border-top:1px solid var(--rule); padding-top:20px; display:flex; flex-direction:column; gap:9px; font-size:13px; color:var(--ink-soft); }
+  .footer strong { color:var(--ink); }
+  [tabindex]:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Custom Programming Request · Yardi Voyager</p>
+    <h1>طلب تطوير حزمة تقارير مديونية الموظفين</h1>
+    <p class="lede">
+      طلب برمجة مخصصة يسبق التنفيذ: المبرر، النطاق، المتطلبات المسبقة، الجهد والجدول الزمني،
+      البدائل المدروسة، تقييم الأثر، والاعتمادات. وثائق التصميم الخمس ونصوص SQL مرفقات فنية لهذا الطلب.
+    </p>
+    <div class="chips">
+      <span class="chip">CPR-EMPRCV-2026-001</span>
+      <span class="chip">Financials · General Ledger</span>
+      <span class="chip">تطوير مخصص جديد</span>
+      <span class="chip pri">أولوية عالية — مرتبط بالتدقيق السنوي</span>
+      <span class="chip draft">مسوّدة — بانتظار الاعتماد</span>
+    </div>
+  </header>
+
+  <!-- 1 -->
+  <section class="block">
+    <header><h2>بيانات الطلب</h2><span class="n">§1</span></header>
+    <div class="body">
+      <dl class="kv">
+        <div><dt>رقم الطلب</dt><dd>CPR-EMPRCV-2026-001</dd></div>
+        <div><dt>النظام</dt><dd>Yardi Voyager</dd></div>
+        <div><dt>الإصدار / القاعدة</dt><dd class="blank">‹يُملأ: 7S أو 8›</dd></div>
+        <div><dt>الوحدة</dt><dd>Financials — GL (تقارير فقط)</dd></div>
+        <div><dt>نوع الطلب</dt><dd>تطوير مخصص جديد</dd></div>
+        <div><dt>فئة التغيير</dt><dd>Normal Change</dd></div>
+        <div><dt>الجهة الطالبة</dt><dd>قسم المالية</dd></div>
+        <div><dt>المالك الوظيفي</dt><dd>المدير المالي</dd></div>
+        <div><dt>المالك التقني</dt><dd>فريق تطبيقات Yardi</dd></div>
+        <div><dt>التاريخ المستهدف</dt><dd class="blank">‹٦ أسابيع قبل إقفال السنة›</dd></div>
+      </dl>
+      <div class="callout good">
+        <span>الحل للقراءة فقط: لا يعدّل أي بيانات في Yardi، ولا يمسّ أي كائن قياسي. أسوأ سيناريو للفشل هو تعطّل التقارير — لا فقدان بيانات.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="block">
+    <header><h2>النطاق المطلوب</h2><span class="n">§4</span></header>
+    <div class="body">
+      <div class="scroll">
+        <table>
+          <thead><tr><th>الرمز</th><th>التقرير</th><th>الغرض</th></tr></thead>
+          <tbody>
+            <tr><td class="id">EMPRCV-R1</td><td>ملخص مديونية الموظفين</td><td>رصيد كل موظف حتى تاريخ معيّن موزّعاً على الأعمار والفئات، مع ضابط مطابقة مع ميزان المراجعة</td></tr>
+            <tr><td class="id">EMPRCV-R2</td><td>كشف حساب تفصيلي</td><td>حركة تفصيلية برصيد متحرك ودرل داون إلى المستند في Voyager</td></tr>
+            <tr><td class="id">EMPRCV-R3</td><td>نموذج اعتماد الرصيد</td><td>مستند رسمي بإقرار وتوقيع لنهاية السنة المالية، مبني على لقطة مجمّدة</td></tr>
+            <tr><td class="id">EMPRCV-R3L</td><td>سجل متابعة المصادقات</td><td>دليل الاكتمال الذي يُسلَّم للمدقق: صادر / موقّع / معترض / معلّق</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        عابر للتقارير: سيجمنتيشن، تعدد شركات وكيانات، أرصدة حتى تاريخ معيّن من معاملات الحسابات
+        العامة، تصدير Excel و PDF، ودرل داون على مستويين.
+      </p>
+      <p><strong>خارج النطاق:</strong></p>
+      <ul class="list">
+        <li>إنشاء أو ترحيل قيود المديونية — الحل للقراءة فقط.</li>
+        <li>احتساب الفوائد وجداول السداد، والتوقيع الإلكتروني المعتمد — مراحل لاحقة.</li>
+        <li>التكامل مع أنظمة رواتب خارج Yardi.</li>
+        <li>تنقية البيانات التاريخية — مسؤولية العميل كبند مسبق.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="block">
+    <header><h2>المبرر والعائد المتوقع</h2><span class="n">§3</span></header>
+    <div class="body">
+      <div class="scroll">
+        <table>
+          <thead><tr><th>الوضع الحالي</th><th>المخاطرة</th><th>العائد بعد التنفيذ</th></tr></thead>
+          <tbody>
+            <tr><td>إعداد الكشوف يدوياً في Excel</td><td>≈ ١٢ ساعة شهرياً + خطأ بشري</td><td>صفر ساعة — إخراج آلي مطابق</td></tr>
+            <tr><td>لا ضابط مطابقة مع ميزان المراجعة</td><td>أرصدة غير مطابقة تُكتشف عند التدقيق</td><td>فرق = 0.00 مفحوص آلياً في كل تشغيل</td></tr>
+            <tr><td>مصادقات نهاية السنة تُكتب يدوياً</td><td>ملاحظة تدقيق على ضعف الضوابط</td><td>١٠٠٪ من النماذج خلال يوم عمل واحد</td></tr>
+            <tr><td>لا سجل للمصادقات المستلمة</td><td>لا دليل اكتمال للمدقق</td><td>سجل لحظي بنسبة الاستجابة والتغطية</td></tr>
+            <tr><td>لا متابعة لمنتهي الخدمة</td><td>مخاطر تحصيل وخسائر فعلية</td><td>قائمة آلية بمنتهي الخدمة ذوي رصيد ≠ 0</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="block">
+    <header><h2>المتطلبات المسبقة — لا يبدأ التنفيذ قبل اكتمالها</h2><span class="n">§6</span></header>
+    <div class="body">
+      <div class="callout gate">
+        <span><strong>PR1 هي البوابة الحاكمة.</strong> أسماء جداول وأعمدة Yardi تختلف بين إصدارات Voyager وبين إعدادات كل عميل؛ البناء قبل تثبيتها يُنتج أرصدة خاطئة بصمت.</span>
+      </div>
+      <div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR1</span><span>التحقق من سكيما Yardi وتثبيت النتائج في <code>EMPRCV_SchemaMap</code></span><span class="who">قاعدة البيانات + Yardi</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR2</span><span>اعتماد نطاق حسابات المديونية وتصنيفها إلى فئات</span><span class="who">المالية</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR3</span><span>تحديد طريقة تمثيل الموظف (مورد / شريحة / حساب فرعي)</span><span class="who">المالية + الموارد البشرية</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR4</span><span>اعتماد نص الإقرار قانونياً (عربي + إنجليزي)</span><span class="who">الإدارة القانونية</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR5</span><span>خريطة أمان المستخدمين ← الكيانات المصرّح بها</span><span class="who">أمان Voyager</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR6</span><span>بيئة اختبار محدّثة بنسخة قريبة من الإنتاج</span><span class="who">البنية التحتية</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR7</span><span>تنقية الحركات التاريخية غير المنسوبة لموظف</span><span class="who">المالية</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR8</span><span>تفريغ مرجع من المالية (≈ ٣٠٪ من وقته لمدة ٦ أسابيع)</span><span class="who">المالية</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR9</span><span>اعتماد قوالب روابط شاشات Voyager للدرل داون</span><span class="who">تطبيقات Yardi</span></div>
+        <div class="checkrow"><span class="box"></span><span class="pid">PR10</span><span>تحديد دفتر التقرير (Accrual) وقيمة حالة الترحيل</span><span class="who">المالية + Yardi</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="block">
+    <header><h2>الجهد والجدول الزمني</h2><span class="n">§8</span></header>
+    <div class="body">
+      <div class="scroll">
+        <table>
+          <thead><tr><th>المرحلة</th><th>الوصف</th><th class="num">أيام المنفّذ</th><th class="num">أيام العميل</th></tr></thead>
+          <tbody>
+            <tr><td class="id">M0</td><td>التحقق من السكيما — بوابة إلزامية</td><td class="num">4</td><td class="num">3</td></tr>
+            <tr><td class="id">M1</td><td>جداول الإعداد واعتماد نطاق الحسابات</td><td class="num">3</td><td class="num">2</td></tr>
+            <tr><td class="id">M2</td><td>طبقة العزل + نواة البيانات + المطابقة</td><td class="num">5</td><td class="num">1</td></tr>
+            <tr><td class="id">M3</td><td>تقرير R1</td><td class="num">5</td><td class="num">1</td></tr>
+            <tr><td class="id">M4</td><td>تقرير R2</td><td class="num">4</td><td class="num">1</td></tr>
+            <tr><td class="id">M5</td><td>نموذج R3 + سجل R3L + اللقطة المجمّدة</td><td class="num">5</td><td class="num">2</td></tr>
+            <tr><td class="id">M6</td><td>الأداء: التجميع والوظيفة الليلية والقياس</td><td class="num">3</td><td class="num">1</td></tr>
+            <tr><td class="id">M7</td><td>الصلاحيات والاختبار بثلاثة أدوار</td><td class="num">2</td><td class="num">1</td></tr>
+            <tr><td class="id">M8</td><td>اختبار القبول (UAT)</td><td class="num">3</td><td class="num">5</td></tr>
+            <tr><td class="id">M9</td><td>التدريب والوثائق</td><td class="num">2</td><td class="num">2</td></tr>
+            <tr><td class="id">M10</td><td>النشر والدعم المكثّف</td><td class="num">4</td><td class="num">2</td></tr>
+            <tr class="total"><td colspan="2">الإجمالي — المدة ٧ إلى ٨ أسابيع</td><td class="num">40</td><td class="num">21</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        أساس التقدير: التصميم التفصيلي ونصوص SQL المرجعية الجاهزة، وهي تختصر التحليل والبناء الأولي.
+        التقدير أوّلي ويُعاد تثبيته بعد نتيجة M0 — اختلاف السكيما أو تعدد طرق تسجيل المديونية تاريخياً
+        قد يضيف ٣–٧ أيام. التكلفة تُحتسب وفق العقد الساري ولا تُقدَّر هنا.
+      </p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="block">
+    <header><h2>البدائل المدروسة</h2><span class="n">§9</span></header>
+    <div class="body">
+      <div class="scroll">
+        <table>
+          <thead><tr><th>البديل</th><th>التقييم</th><th>القرار</th></tr></thead>
+          <tbody>
+            <tr><td>الاستمرار بـ Excel اليدوي</td><td>لا تكلفة تطوير، ويُبقي كل المخاطر وملاحظة التدقيق قائمة</td><td><span class="tag crit">مرفوض</span></td></tr>
+            <tr><td>تقارير Voyager القياسية فقط</td><td>لا تعرض المديونية على مستوى الموظف ولا تُنتج نموذج مصادقة</td><td><span class="tag warn">غير كافٍ</span></td></tr>
+            <tr><td>أداة تحليل خارجية (BI)</td><td>تحليل لا مستند رسمي؛ تُخرج بيانات حساسة خارج النظام وتُضعف الصلاحيات؛ ترخيص وبنية إضافية</td><td><span class="tag crit">مرفوض</span></td></tr>
+            <tr><td><strong>حزمة تقارير مخصّصة داخل Voyager</strong></td><td>البيانات والصلاحيات تبقى داخل النظام، مخرجات رسمية قابلة للتوقيع، وتوافق مع الترقيات</td><td><span class="tag ok">موصى به</span></td></tr>
+            <tr><td>تنفيذ على مراحل (R1 أولاً)</td><td>يقلّل الدفعة الأولى، لكن R3 هو المحرّك الزمني وR1 وحده لا يحل ملاحظة التدقيق</td><td><span class="tag mute">عند ضغط الموازنة</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="block">
+    <header><h2>تقييم الأثر والمخاطر</h2><span class="n">§10 · §11</span></header>
+    <div class="body">
+      <dl class="kv">
+        <div><dt>أثر على البيانات</dt><dd>لا يوجد — قراءة فقط</dd></div>
+        <div><dt>أثر على العمليات</dt><dd>لا يوجد — لا تعديل على شاشات قياسية</dd></div>
+        <div><dt>أثر على الأداء</dt><dd>منخفض ومُدار</dd></div>
+        <div><dt>أثر على الترقيات</dt><dd>لا يوجد — كائنات مخصّصة معزولة</dd></div>
+        <div><dt>زمن التراجع</dt><dd>≤ ١٥ دقيقة لتقرير · ≤ ساعة لإلغاء كامل</dd></div>
+        <div><dt>حساسية البيانات</dt><dd>عالية — ست طبقات صلاحيات</dd></div>
+      </dl>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>المخاطرة</th><th>الاحتمال</th><th>الأثر</th><th>المعالجة</th></tr></thead>
+          <tbody>
+            <tr><td>اختلاف سكيما Yardi عن المتوقع</td><td><span class="tag warn">متوسط</span></td><td><span class="tag crit">عالٍ</span></td><td>بوابة M0 قبل أي بناء + طبقة عزل واحدة</td></tr>
+            <tr><td>تعدد طرق تسجيل المديونية تاريخياً</td><td><span class="tag crit">مرتفع</span></td><td><span class="tag warn">متوسط</span></td><td>أربعة مصادر لتعريف الموظف + خريطة يدوية + تقرير غير المنسوب</td></tr>
+            <tr><td>تأخر اعتماد نص الإقرار قانونياً</td><td><span class="tag warn">متوسط</span></td><td><span class="tag warn">متوسط</span></td><td>بدء المسار القانوني مع اعتماد الطلب لا بعده</td></tr>
+            <tr><td>حجم بيانات الأستاذ العام</td><td><span class="tag warn">متوسط</span></td><td><span class="tag warn">متوسط</span></td><td>جدول تجميع ليلي + قياس مستمر عبر سجل التشغيل</td></tr>
+            <tr><td>صعوبة تحديد نطاق أمان المستخدمين</td><td><span class="tag warn">متوسط</span></td><td><span class="tag crit">عالٍ</span></td><td>تسليم fail-closed + فحص إعداد يمنع الإطلاق</td></tr>
+            <tr><td>قيود بأثر رجعي بعد إصدار المصادقات</td><td><span class="tag crit">مرتفع</span></td><td><span class="tag warn">متوسط</span></td><td>لقطة مجمّدة ببصمة + تقرير فروقات</td></tr>
+            <tr><td>عدم تفرّغ مرجع المالية</td><td><span class="tag warn">متوسط</span></td><td><span class="tag crit">عالٍ</span></td><td>تثبيت البند PR8 كشرط مسبق للاعتماد</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="block">
+    <header><h2>معايير إغلاق الطلب</h2><span class="n">§12</span></header>
+    <div class="body">
+      <ul class="list">
+        <li><strong>AT1</strong> — مجموع R1 = رصيد حسابات النطاق في ميزان المراجعة، الفرق = 0.00 لثلاثة تواريخ.</li>
+        <li><strong>AT2</strong> — الرصيد الختامي في R2 = رصيد الموظف في R1 لعيّنة ٢٠ موظفاً.</li>
+        <li><strong>AT3</strong> — مجموع شرائح الأعمار = الرصيد لكل صف.</li>
+        <li><strong>AT5</strong> — لا يظهر أي كيان خارج صلاحية المستخدم، مختبَراً بثلاثة أدوار.</li>
+        <li><strong>AT7</strong> — R3 صفحة واحدة لكل موظف بكل خانات التوقيع المطلوبة.</li>
+        <li><strong>AT8</strong> — إعادة تشغيل R3 لنفس التاريخ تعطي نفس الأرصدة.</li>
+        <li><strong>AT9</strong> — تحقق أهداف الأداء على بيانات الإنتاج، موثّقاً.</li>
+        <li><strong>AT10</strong> — تقرير الحركات غير المنسوبة فارغ عند الإطلاق.</li>
+      </ul>
+      <p class="note">مراجعة ما بعد التنفيذ (PIR) بعد ٣٠ يوماً من الإطلاق: قياس تحقق الأهداف ومراجعة الأداء الفعلي، ثم إغلاق الطلب رسمياً.</p>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="block">
+    <header><h2>مسار الاعتماد</h2><span class="n">§14</span></header>
+    <div class="body">
+      <div class="flow">CPR  ──►  المالية + Yardi + أمن المعلومات + CAB  ──►  المتطلبات المسبقة (PR1..PR10)
+                                                            │
+                                                   M0  التحقق من السكيما
+                                                            ▼
+                                                       بدء البناء</div>
+      <p class="note">العدّ الزمني يبدأ من تاريخ اكتمال المتطلبات المسبقة، لا من تاريخ الاعتماد.</p>
+
+      <div class="sigs">
+        <div class="sig">
+          <span class="role">مقدّم الطلب — قسم المالية</span>
+          <span class="opts"><span><span class="box"></span> رفع</span></span>
+          <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+        </div>
+        <div class="sig">
+          <span class="role">المالك الوظيفي — المدير المالي</span>
+          <span class="opts"><span><span class="box"></span> اعتماد</span><span><span class="box"></span> رفض</span><span><span class="box"></span> تعديل</span></span>
+          <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+        </div>
+        <div class="sig">
+          <span class="role">مدير تطبيقات Yardi</span>
+          <span class="opts"><span><span class="box"></span> اعتماد فني</span></span>
+          <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+        </div>
+        <div class="sig">
+          <span class="role">مسؤول أمن المعلومات</span>
+          <span class="opts"><span><span class="box"></span> اعتماد — بيانات حساسة</span></span>
+          <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+        </div>
+        <div class="sig">
+          <span class="role">الإدارة القانونية — نص الإقرار</span>
+          <span class="opts"><span><span class="box"></span> اعتماد</span></span>
+          <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+        </div>
+        <div class="sig">
+          <span class="role">لجنة التغيير (CAB) واعتماد الموازنة</span>
+          <span class="opts"><span><span class="box"></span> اعتماد الجدولة</span><span><span class="box"></span> اعتماد الموازنة</span></span>
+          <span class="lines"><span>الاسم</span><span>التوقيع</span><span>التاريخ</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p><strong>المرفقات الفنية:</strong> التصميم الوظيفي · التصميم التقني · منطق البيانات وجداول Yardi المعنية · النماذج الأولية ونص الإقرار · الأداء والصلاحيات وخطة النشر · نصوص SQL المرجعية (٧ ملفات).</p>
+    <p><strong>حالة المستند:</strong> مسوّدة إصدار 0.1 — للمراجعة والاعتماد. الحقول المعلّمة بـ ‹…› تُملأ من بيانات المنشأة قبل الرفع.</p>
+  </footer>
+
+</div>
